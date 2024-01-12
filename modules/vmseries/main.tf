@@ -34,7 +34,8 @@ resource "aws_network_interface" "this" {
 
   subnet_id         = each.value.subnet_id
   private_ips       = lookup(each.value, "private_ips", null)
-  private_ips_count = lookup(each.value, "additional_ips", null)
+  private_ips_count = 1
+  #private_ips_count = lookup(each.value, "additional_ips", null)
   source_dest_check = lookup(each.value, "source_dest_check", false)
   security_groups   = lookup(each.value, "security_group_ids", null)
   description       = lookup(each.value, "description", null)
