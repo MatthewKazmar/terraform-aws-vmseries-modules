@@ -79,8 +79,9 @@ variable "interfaces" {
   - `name`               = (Optional|string) Name tag for the ENI. Defaults to instance name suffixed by map's key.
   - `description`        = (Optional|string) A descriptive name for the ENI.
   - `create_public_ip`   = (Optional|bool) Whether to create a public IP for the ENI. Defaults to false.
-  - `eip_allocation_id`  = (Optional|string) Associate an existing EIP to the ENI.
+  - `eip_allocation_ids` = (Optional|list) Associate existing EIPs to the ENI.
   - `private_ips`        = (Optional|list) List of private IPs to assign to the ENI. If not set, dynamic allocation is used.
+  - `additional_ips`     = (Optional|int) Additional private IPs to add to the ENI. EIPs will be created/associated if specified.
   - `public_ipv4_pool`   = (Optional|string) EC2 IPv4 address pool identifier. 
   - `source_dest_check`  = (Optional|bool) Whether to enable source destination checking for the ENI. Defaults to false.
   - `security_group_ids` = (Optional|list) A list of Security Group IDs to assign to this interface. Defaults to null.

@@ -34,18 +34,34 @@ resource "aws_network_interface" "this" {
 
   subnet_id         = each.value.subnet_id
   private_ips       = lookup(each.value, "private_ips", null)
+  private_ips_count = lookup(each.value, "additional_ips", null)
   source_dest_check = lookup(each.value, "source_dest_check", false)
   security_groups   = lookup(each.value, "security_group_ids", null)
   description       = lookup(each.value, "description", null)
   tags              = merge(var.tags, { Name = coalesce(try(each.value.name, null), "${var.name}-${each.key}") })
 }
 
-# Create and/or associate EIPs
+# We need to create EIPs for each private IP on the ENIs that have them enabled.
+# This is part of the AWS HA setup.
+# So we need a map of maps that looks like this:
+# key        ip eni value
+# mgmt       x.x.0.1 eni-123
+# untrust    x.x.1.1 eni-234
+# untrust-1  x.x.1.2 eni-234
+
 resource "aws_eip" "this" {
-  for_each = { for k, v in var.interfaces : k => v if try(v.create_public_ip, false) }
+  for_each = merge([
+    for k, v in aws_network_interface.this : {
+      for i, v2 in v.private_ips : i == 0 ? k : "${k}-${i}" => {
+        ip     = v2
+        eni_id = v.id
+      }
+    }
+  if try(var.interfaces[k2].create_public_ip, false)])
 
   domain            = var.eip_domain
-  network_interface = aws_network_interface.this[each.key].id
+  network_interface = each.value["eni_id"]
+  private_ip        = each.value["ip"]
   public_ipv4_pool  = lookup(each.value, "public_ipv4_pool", "amazon")
   tags              = merge(var.tags, { Name = coalesce(try(each.value.name, null), "${var.name}-${each.key}") })
 }
