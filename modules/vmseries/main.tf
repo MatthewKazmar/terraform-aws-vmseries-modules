@@ -34,8 +34,7 @@ resource "aws_network_interface" "this" {
 
   subnet_id         = each.value.subnet_id
   private_ips       = lookup(each.value, "private_ips", null)
-  private_ips_count = 1
-  #private_ips_count = lookup(each.value, "additional_ips", null)
+  private_ips_count = lookup(each.value, "additional_ips", null)
   source_dest_check = lookup(each.value, "source_dest_check", false)
   security_groups   = lookup(each.value, "security_group_ids", null)
   description       = lookup(each.value, "description", null)
@@ -53,8 +52,8 @@ resource "aws_network_interface" "this" {
 resource "aws_eip" "this" {
   for_each = merge([
     for k, v in aws_network_interface.this : {
-      for i, v2 in tolist(v.private_ips) : i == 0 ? k : "${k}-${i}" => {
-        ip     = v2
+      for i in range(lookup(var.interfaces[k], "additional_ips", 0)) :  i == 0 ? k : "${k}-${i}" => {
+        ip     = v.private_ips[i]
         eni_id = v.id
       }
     }
