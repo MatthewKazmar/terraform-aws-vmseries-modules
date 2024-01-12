@@ -52,7 +52,7 @@ resource "aws_network_interface" "this" {
 resource "aws_eip" "this" {
   for_each = merge([
     for k, v in aws_network_interface.this : {
-      for i, v2 in v.private_ips : i == 0 ? k : "${k}-${i}" => {
+      for v2 in v.private_ips : index(v.private_ips, v2) == 0 ? k : "${k}-${index(v.private_ips, v2)}" => {
         ip     = v2
         eni_id = v.id
       }
