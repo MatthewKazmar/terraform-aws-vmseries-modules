@@ -57,13 +57,13 @@ resource "aws_eip" "this" {
         eni_id = v.id
       }
     }
-  if try(var.interfaces[k2].create_public_ip, false)])
+  if try(var.interfaces[k].create_public_ip, false)])
 
-  domain            = var.eip_domain
-  network_interface = each.value["eni_id"]
-  private_ip        = each.value["ip"]
-  public_ipv4_pool  = lookup(each.value, "public_ipv4_pool", "amazon")
-  tags              = merge(var.tags, { Name = coalesce(try(each.value.name, null), "${var.name}-${each.key}") })
+  domain                    = var.eip_domain
+  network_interface         = each.value["eni_id"]
+  associate_with_private_ip = each.value["ip"]
+  public_ipv4_pool          = lookup(each.value, "public_ipv4_pool", "amazon")
+  tags                      = merge(var.tags, { Name = coalesce(try(each.value.name, null), "${var.name}-${each.key}") })
 }
 
 resource "aws_eip_association" "this" {
