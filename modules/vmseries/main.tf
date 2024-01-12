@@ -57,7 +57,7 @@ resource "aws_eip" "this" {
         eni_id = v.id
       }
     }
-  if try(var.interfaces[k].create_public_ip, false)])
+  if try(var.interfaces[k].create_public_ip, false)]...)
 
   domain                    = var.eip_domain
   network_interface         = each.value["eni_id"]
